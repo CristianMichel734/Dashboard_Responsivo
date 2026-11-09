@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard SPA - Monitoreo Cloud & DevOps</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="app-layout">
+    <!-- ZONA 1: HEADER SUPERIOR -->
+    <header class="top-header">
+      <div class="header-left">
+        <button class="icon-btn mobile-menu-btn" id="btnToggleSidebar" aria-label="Abrir menú">☰</button>
+        <nav aria-label="Breadcrumb" class="breadcrumbs">
+          <ol>
+            <li><a href="#">Infraestructura</a></li>
+            <li><a href="#">Clusters US-East</a></li>
+            <li aria-current="page">node-us-east-04</li>
+          </ol>
+        </nav>
+      </div>
+      <div class="header-right">
+        <div class="global-status">
+          <span class="status-dot healthy"></span>
+          <span>Sistema: <strong>99.98% OK</strong></span>
+        </div>
+        <button class="theme-toggle-btn" id="btnToggleTheme" aria-label="Cambiar tema">🌙 Mode</button>
+      </div>
+    </header>
+
+    <!-- ZONA 1: SIDEBAR NAVEGACIÓN PERSISTENTE / RETRÁCTIL -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <span class="brand-icon">⚡</span>
+        <span class="brand-name">CloudMonitor</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" aria-current="page">
+          <span class="nav-icon">📊</span> <span>Dashboard</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="nav-icon">🖥️</span> <span>Instancias Cloud</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="nav-icon">🔀</span> <span>Red & OSPF</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="nav-icon">🚨</span> <span>Alertas</span>
+          <span class="badge">3</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="nav-icon">⚙️</span> <span>Ajustes</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- ZONA 2: ÁREA DE CONTENIDO DINÁMICO (BENTO GRID + TABLA) -->
+    <main class="workspace">
+      <section class="workspace-header">
+        <h1>Monitoreo de Infraestructura en Tiempo Real</h1>
+        <p>Vista general del cluster principal de producción.</p>
+      </section>
+
+      <!-- PATRÓN BENTO GRID -->
+      <section class="bento-grid">
+        <article class="bento-card hero-card">
+          <div class="card-header">
+            <h3>Consumo General de CPU</h3>
+            <span class="badge-tag">Tiempo Real</span>
+          </div>
+          <div class="metric-value">68.4%</div>
+          <p class="metric-subtitle">Carga promedio en 32 nodos activos</p>
+          <div class="chart-placeholder">[ Gráfica Temporal en Carga ]</div>
+        </article>
+
+        <article class="bento-card">
+          <div class="card-header">
+            <h3>Memoria RAM Reservada</h3>
+          </div>
+          <div class="metric-value">124.8 GB / 160 GB</div>
+          <div class="progress-bar"><div class="progress-fill" style="width: 78%;"></div></div>
+        </article>
+
+        <article class="bento-card">
+          <div class="card-header">
+            <h3>Tráfico I/O de Red</h3>
+          </div>
+          <div class="metric-value">1.42 Gbps</div>
+          <p class="metric-subtitle">Entrada: 820 Mbps | Salida: 600 Mbps</p>
+        </article>
+      </section>
+
+      <!-- TABLA DE INSTANCIAS -->
+      <section class="data-section">
+        <div class="section-toolbar">
+          <h2>Instancias cloud</h2>
+          <div class="toolbar-actions">
+            <input type="text" class="form-control input-search" placeholder="Buscar por IP o Hostname...">
+            <button class="btn btn-secondary">Filtrar</button>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Hostname</th>
+                <th>Dirección IP</th>
+                <th>Estado</th>
+                <th>CPU</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>node-us-east-04</strong></td>
+                <td>192.168.1.104</td>
+                <td><span class="status-badge status-danger">Crítico (89%)</span></td>
+                <td>89%</td>
+                <td>
+                  <button class="btn btn-sm btn-outline" onclick="openDrawer('node-us-east-04')">Gestionar</button>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>node-us-east-05</strong></td>
+                <td>192.168.1.105</td>
+                <td><span class="status-badge status-success">Saludable</span></td>
+                <td>24%</td>
+                <td>
+                  <button class="btn btn-sm btn-outline" onclick="openDrawer('node-us-east-05')">Gestionar</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ZONA 3: DRAWER LATERAL DE CONFIGURACIÓN CONTEXTUAL -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <aside class="drawer" id="contextDrawer" aria-hidden="true">
+    <div class="drawer-header">
+      <h3 id="drawerTitle">Configurar Instancia</h3>
+      <button class="icon-btn" onclick="closeDrawer()" aria-label="Cerrar panel">✕</button>
+    </div>
+    <div class="drawer-body">
+      <form id="drawerForm" onsubmit="event.preventDefault();">
+        <div class="form-group">
+          <label for="inputHostname">Nombre del Host</label>
+          <input type="text" id="inputHostname" class="form-control" value="node-us-east-04">
+        </div>
+
+        <div class="form-group">
+          <label for="selectRegion">Región de Despliegue</label>
+          <select id="selectRegion" class="form-control">
+            <option value="us-east-1">us-east-1 (N. Virginia)</option>
+            <option value="us-west-2">us-west-2 (Oregon)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="inputMaintenanceDate">Próximo Mantenimiento</label>
+          <input type="date" id="inputMaintenanceDate" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="textareaConfig">Variables de Entorno (JSON)</label>
+          <textarea id="textareaConfig" class="form-control code-font" rows="4">{"MAX_WORKERS": 8, "TIMEOUT": 30}</textarea>
+        </div>
+
+        <div class="form-group toggle-group">
+          <label for="switchAutoscale">Auto-scaling Automático</label>
+          <input type="checkbox" id="switchAutoscale" class="toggle-switch" checked>
+        </div>
+      </form>
+
+      <hr class="divider">
+
+      <div class="danger-zone">
+        <h4>Acciones de Riesgo Operativo</h4>
+        <p>Estas acciones afectan directamente la disponibilidad del servicio.</p>
+        <button class="btn btn-danger btn-full" onclick="openModal()">Reiniciar Instancia (Crítico)</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ZONA 3: VENTANA MODAL CON CONFIRMACIÓN DE SEGURIDAD (ACCIÓN DESTRUCTIVA) -->
+  <div class="modal-overlay" id="confirmModal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-labelledby="modalTitle" aria-describedby="modalDesc">
+      <div class="modal-header modal-header-danger">
+        <h3 id="modalTitle">⚠️ Confirmar Acción Crítica</h3>
+      </div>
+      <div class="modal-body">
+        <p id="modalDesc">
+          Está a punto de reiniciar la instancia <strong id="modalTargetNode">node-us-east-04</strong>.
+          Esta acción interrumpirá las solicitudes entrantes durante 45 segundos.
+        </p>
+        <div class="form-group">
+          <label for="confirmInput">Escriba <strong>NODE-04</strong> para habilitar la confirmación:</label>
+          <input type="text" id="confirmInput" class="form-control" placeholder="NODE-04" autocomplete="off">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+        <button class="btn btn-danger" id="btnExecuteAction" disabled onclick="executeCriticalAction()">Reiniciar Ahora</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
